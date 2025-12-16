@@ -1140,12 +1140,27 @@
         tweaksButton.title = "Open UI Tweaks";
         tweaksButton.dataset.elementId = "workspace-tab-tweaks";
         tweaksButton.className = styleReferenceButton.className;
+        // Add fallback styles to ensure button visibility
+        tweaksButton.style.display = "inline-flex";
+        tweaksButton.style.alignItems = "center";
+        tweaksButton.style.justifyContent = "center";
+        tweaksButton.style.padding = "0.5rem";
+        tweaksButton.style.cursor = "pointer";
+        tweaksButton.style.background = "transparent";
+        tweaksButton.style.border = "none";
+        
         const outerSpan = document.createElement("span");
         const styleReferenceOuterSpan =
           styleReferenceButton.querySelector(":scope > span");
         if (styleReferenceOuterSpan) {
           outerSpan.className = styleReferenceOuterSpan.className;
         }
+        // Add fallback styles to ensure visibility
+        outerSpan.style.display = "flex";
+        outerSpan.style.flexDirection = "column";
+        outerSpan.style.alignItems = "center";
+        outerSpan.style.justifyContent = "center";
+        outerSpan.style.gap = "0.25rem";
 
         const iconDiv = document.createElement("div");
         const styleReferenceIconDiv = styleReferenceButton.querySelector(
@@ -1158,6 +1173,8 @@
         iconDiv.style.display = "flex";
         iconDiv.style.justifyContent = "center";
         iconDiv.style.alignItems = "center";
+        iconDiv.style.width = "32px";
+        iconDiv.style.height = "32px";
 
         const svgIcon = document.createElementNS(
           "http://www.w3.org/2000/svg",
@@ -1175,6 +1192,11 @@
         svgIcon.style.color =
           currentWsIconColor || defaultWorkspaceIconColorVisual;
         svgIcon.setAttribute("fill", "currentColor");
+        // Ensure SVG displays properly
+        svgIcon.style.display = "block";
+        svgIcon.style.width = "18px";
+        svgIcon.style.height = "18px";
+        svgIcon.style.flexShrink = "0";
 
         const svgPath = document.createElementNS(
           "http://www.w3.org/2000/svg",
@@ -1191,6 +1213,15 @@
         textSpan.className =
           "font-normal self-stretch text-center text-xs leading-4 md:leading-none";
         textSpan.textContent = "Tweaks";
+        // Ensure text displays with proper color
+        const currentWsFontColor = getSetting(
+          settingsKeys.workspaceFontColor,
+          null
+        );
+        textSpan.style.color = currentWsFontColor || defaultWorkspaceFontColorVisual;
+        textSpan.style.fontSize = "0.75rem";
+        textSpan.style.lineHeight = "1rem";
+        textSpan.style.textAlign = "center";
 
         outerSpan.appendChild(iconDiv);
         outerSpan.appendChild(textSpan);
