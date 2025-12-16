@@ -27,6 +27,7 @@
   const defaultWorkspaceFontColorVisual = "#d1d5db";
   const defaultSidebarMenuColor = "#18181b";
   let originalPageTitle = null;
+  let debugInfoLogged = false; // Track if debug info has been logged
   const cleanValue = (value) => {
     if (!value) return null;
     let cleaned = value.trim();
@@ -228,10 +229,8 @@
       const syncButton = workspaceBar.querySelector(
         'button[data-element-id="workspace-tab-cloudsync"]'
       );
-      const profileButtonLocal = document.querySelector(
-        'button[data-element-id="workspace-profile-button"]'
-      );
-      const styleReferenceButton = syncButton || profileButtonLocal || settingsButton;
+      // profileButton is already declared earlier in the function
+      const styleReferenceButton = syncButton || profileButton || settingsButton;
 
       if (tweaksButton) {
         const svgIcon = tweaksButton.querySelector("svg");
@@ -1124,7 +1123,7 @@
       const styleReferenceButton = syncButton || profileButton || settingsButton;
       
       // Debug logging (only log once)
-      if (!tweaksButton && !window._tweaksButtonDebugLogged) {
+      if (!tweaksButton && !debugInfoLogged) {
         console.log(`${consolePrefix} Debug info:`, {
           workspaceBar: !!workspaceBar,
           settingsButton: !!settingsButton,
@@ -1132,7 +1131,7 @@
           profileButton: !!profileButton,
           styleReferenceButton: !!styleReferenceButton
         });
-        window._tweaksButtonDebugLogged = true;
+        debugInfoLogged = true;
       }
       
       if (!tweaksButton && settingsButton && styleReferenceButton) {
