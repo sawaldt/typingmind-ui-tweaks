@@ -27,6 +27,7 @@
   const defaultWorkspaceFontColorVisual = "#d1d5db";
   const defaultSidebarMenuColor = "#18181b";
   let originalPageTitle = null;
+  let debugInfoLogged = false; // Track if debug info has been logged
   const cleanValue = (value) => {
     if (!value) return null;
     let cleaned = value.trim();
@@ -228,7 +229,8 @@
       const syncButton = workspaceBar.querySelector(
         'button[data-element-id="workspace-tab-cloudsync"]'
       );
-      const styleReferenceButton = syncButton || profileButton;
+      // profileButton is declared at function scope above
+      const styleReferenceButton = syncButton || profileButton || settingsButton;
 
       if (tweaksButton) {
         const svgIcon = tweaksButton.querySelector("svg");
@@ -1117,7 +1119,21 @@
       const profileButton = document.querySelector(
         'button[data-element-id="workspace-profile-button"]'
       );
-      const styleReferenceButton = syncButton || profileButton;
+      // Use any available button for style reference, fallback to settingsButton
+      const styleReferenceButton = syncButton || profileButton || settingsButton;
+      
+      // Debug logging (only log once)
+      if (!tweaksButton && !debugInfoLogged) {
+        console.log(`${consolePrefix} Debug info:`, {
+          workspaceBar: !!workspaceBar,
+          settingsButton: !!settingsButton,
+          syncButton: !!syncButton,
+          profileButton: !!profileButton,
+          styleReferenceButton: !!styleReferenceButton
+        });
+        debugInfoLogged = true;
+      }
+      
       if (!tweaksButton && settingsButton && styleReferenceButton) {
         tweaksButton = document.createElement("button");
         tweaksButton.id = "workspace-tab-tweaks";
@@ -1298,7 +1314,7 @@
     });
   }
   console.log(
-    `${consolePrefix} Initialized Typingmind UI Tweaks extension. Press Shift+Alt+T for settings.`
+    `${consolePrefix} Initialized TypingMind UI Tweaks extension. Press Shift+Alt+T for settings. If features aren't working, check browser console for debug info.`
   );
 
   function applyCustomFont() {
