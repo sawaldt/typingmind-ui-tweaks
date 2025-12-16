@@ -228,7 +228,10 @@
       const syncButton = workspaceBar.querySelector(
         'button[data-element-id="workspace-tab-cloudsync"]'
       );
-      const styleReferenceButton = syncButton || profileButton || settingsButton;
+      const profileButtonLocal = document.querySelector(
+        'button[data-element-id="workspace-profile-button"]'
+      );
+      const styleReferenceButton = syncButton || profileButtonLocal || settingsButton;
 
       if (tweaksButton) {
         const svgIcon = tweaksButton.querySelector("svg");
