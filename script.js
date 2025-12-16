@@ -229,7 +229,7 @@
       const syncButton = workspaceBar.querySelector(
         'button[data-element-id="workspace-tab-cloudsync"]'
       );
-      // Use profileButton declared at function scope (line 134)
+      // profileButton is declared at function scope above
       const styleReferenceButton = syncButton || profileButton || settingsButton;
 
       if (tweaksButton) {
