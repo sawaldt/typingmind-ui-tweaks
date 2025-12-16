@@ -229,7 +229,7 @@
       const syncButton = workspaceBar.querySelector(
         'button[data-element-id="workspace-tab-cloudsync"]'
       );
-      // profileButton is already declared earlier in the function
+      // Use profileButton declared at function scope (line 134)
       const styleReferenceButton = syncButton || profileButton || settingsButton;
 
       if (tweaksButton) {
@@ -1314,7 +1314,7 @@
     });
   }
   console.log(
-    `${consolePrefix} Initialized Typingmind UI Tweaks extension. Press Shift+Alt+T for settings. If features aren't working, check browser console for debug info.`
+    `${consolePrefix} Initialized TypingMind UI Tweaks extension. Press Shift+Alt+T for settings. If features aren't working, check browser console for debug info.`
   );
 
   function applyCustomFont() {
