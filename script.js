@@ -228,7 +228,7 @@
       const syncButton = workspaceBar.querySelector(
         'button[data-element-id="workspace-tab-cloudsync"]'
       );
-      const styleReferenceButton = syncButton || profileButton;
+      const styleReferenceButton = syncButton || profileButton || settingsButton;
 
       if (tweaksButton) {
         const svgIcon = tweaksButton.querySelector("svg");
@@ -1117,7 +1117,21 @@
       const profileButton = document.querySelector(
         'button[data-element-id="workspace-profile-button"]'
       );
-      const styleReferenceButton = syncButton || profileButton;
+      // Use any available button for style reference, fallback to settingsButton
+      const styleReferenceButton = syncButton || profileButton || settingsButton;
+      
+      // Debug logging (only log once)
+      if (!tweaksButton && !window._tweaksButtonDebugLogged) {
+        console.log(`${consolePrefix} Debug info:`, {
+          workspaceBar: !!workspaceBar,
+          settingsButton: !!settingsButton,
+          syncButton: !!syncButton,
+          profileButton: !!profileButton,
+          styleReferenceButton: !!styleReferenceButton
+        });
+        window._tweaksButtonDebugLogged = true;
+      }
+      
       if (!tweaksButton && settingsButton && styleReferenceButton) {
         tweaksButton = document.createElement("button");
         tweaksButton.id = "workspace-tab-tweaks";
@@ -1298,7 +1312,7 @@
     });
   }
   console.log(
-    `${consolePrefix} Initialized Typingmind UI Tweaks extension. Press Shift+Alt+T for settings.`
+    `${consolePrefix} Initialized Typingmind UI Tweaks extension. Press Shift+Alt+T for settings. If features aren't working, check browser console for debug info.`
   );
 
   function applyCustomFont() {
