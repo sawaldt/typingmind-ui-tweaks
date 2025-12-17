@@ -1237,23 +1237,22 @@
         });
         
         // Insert the button into the workspace bar
+        let buttonInserted = false;
         if (insertionReferenceButton && insertionReferenceButton.parentNode) {
           insertionReferenceButton.parentNode.insertBefore(tweaksButton, insertionReferenceButton);
-          const showModalButtonSetting = getSetting(
-            settingsKeys.showModalButton,
-            true
-          );
-          const newDisplay = showModalButtonSetting ? "inline-flex" : "none";
-          tweaksButton.style.display = newDisplay;
+          buttonInserted = true;
         } else if (workspaceBar) {
           // Fallback: append to workspace bar directly
           workspaceBar.appendChild(tweaksButton);
+          buttonInserted = true;
+        }
+        
+        if (buttonInserted) {
           const showModalButtonSetting = getSetting(
             settingsKeys.showModalButton,
             true
           );
-          const newDisplay = showModalButtonSetting ? "inline-flex" : "none";
-          tweaksButton.style.display = newDisplay;
+          tweaksButton.style.display = showModalButtonSetting ? "inline-flex" : "none";
         } else {
           console.warn(
             `${consolePrefix} Could not insert Tweaks button, no suitable parent found.`
