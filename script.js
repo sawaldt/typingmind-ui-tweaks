@@ -1119,8 +1119,10 @@
       const profileButton = document.querySelector(
         'button[data-element-id="workspace-profile-button"]'
       );
-      // Use any available button for style reference, fallback to settingsButton
+      // Use any available button for style reference
       const styleReferenceButton = syncButton || profileButton || settingsButton;
+      // Find the best insertion reference point (prefer settingsButton, but fall back to any button in the workspace bar)
+      const insertionReferenceButton = settingsButton || syncButton || profileButton || workspaceBar.querySelector('button');
       
       // Debug logging (only log once)
       if (!tweaksButton && !debugInfoLogged) {
@@ -1129,12 +1131,13 @@
           settingsButton: !!settingsButton,
           syncButton: !!syncButton,
           profileButton: !!profileButton,
-          styleReferenceButton: !!styleReferenceButton
+          styleReferenceButton: !!styleReferenceButton,
+          insertionReferenceButton: !!insertionReferenceButton
         });
         debugInfoLogged = true;
       }
       
-      if (!tweaksButton && settingsButton && styleReferenceButton) {
+      if (!tweaksButton && styleReferenceButton) {
         tweaksButton = document.createElement("button");
         tweaksButton.id = "workspace-tab-tweaks";
         tweaksButton.title = "Open UI Tweaks";
@@ -1232,8 +1235,19 @@
           e.stopPropagation();
           toggleModal(true);
         });
-        if (settingsButton.parentNode) {
-          settingsButton.parentNode.insertBefore(tweaksButton, settingsButton);
+        
+        // Insert the button into the workspace bar
+        if (insertionReferenceButton && insertionReferenceButton.parentNode) {
+          insertionReferenceButton.parentNode.insertBefore(tweaksButton, insertionReferenceButton);
+          const showModalButtonSetting = getSetting(
+            settingsKeys.showModalButton,
+            true
+          );
+          const newDisplay = showModalButtonSetting ? "inline-flex" : "none";
+          tweaksButton.style.display = newDisplay;
+        } else if (workspaceBar) {
+          // Fallback: append to workspace bar directly
+          workspaceBar.appendChild(tweaksButton);
           const showModalButtonSetting = getSetting(
             settingsKeys.showModalButton,
             true
@@ -1242,7 +1256,7 @@
           tweaksButton.style.display = newDisplay;
         } else {
           console.warn(
-            `${consolePrefix} Could not insert Tweaks button, settings button has no parent node.`
+            `${consolePrefix} Could not insert Tweaks button, no suitable parent found.`
           );
         }
       }
