@@ -1132,7 +1132,7 @@
       const fallbackReferenceButton =
         workspaceBar.querySelector('[data-element-id^="workspace-tab-"]') ||
         workspaceBar.querySelector(
-          "button[data-element-id], [role='button'][data-element-id]"
+          "button[data-element-id^='workspace-'], [role='button'][data-element-id^='workspace-']"
         );
       // Use any available button for style reference
       const styleReferenceButton =
@@ -1159,9 +1159,7 @@
         tweaksButton.id = "workspace-tab-tweaks";
         tweaksButton.title = "Open UI Tweaks";
         tweaksButton.dataset.elementId = "workspace-tab-tweaks";
-        if (styleReferenceButton) {
-          tweaksButton.className = styleReferenceButton.className;
-        }
+        tweaksButton.className = styleReferenceButton.className;
         // Add fallback styles to ensure button visibility
         tweaksButton.style.display = "inline-flex";
         tweaksButton.style.alignItems = "center";
@@ -1280,9 +1278,16 @@
         }
       }
     }
-    const settingsContainer = document.querySelector(
-      '[data-element-id="settings-page"], [data-element-id="settings-view"], [data-element-id="settings-content"], [data-element-id="settings-panel"], [data-element-id="settings-modal"], [data-element-id="preferences-page"], [data-element-id^="settings-"]'
-    );
+    const settingsContainerSelector = [
+      '[data-element-id="settings-page"]',
+      '[data-element-id="settings-view"]',
+      '[data-element-id="settings-content"]',
+      '[data-element-id="settings-panel"]',
+      '[data-element-id="settings-modal"]',
+      '[data-element-id="preferences-page"]',
+      '[data-element-id^="settings-"]',
+    ].join(", ");
+    const settingsContainer = document.querySelector(settingsContainerSelector);
     if (settingsContainer) {
       let settingsTweaksWrapper = document.getElementById(
         "tweak-settings-button-wrapper"
