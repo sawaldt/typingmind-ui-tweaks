@@ -1129,11 +1129,11 @@
       const profileButton = document.querySelector(
         '[data-element-id="workspace-profile-button"]'
       );
+      const fallbackButtonSelector =
+        'button[data-element-id^="workspace-"], [role="button"][data-element-id^="workspace-"]';
       const fallbackReferenceButton =
         workspaceBar.querySelector('[data-element-id^="workspace-tab-"]') ||
-        workspaceBar.querySelector(
-          "button[data-element-id^=\"workspace-\"], [role=\"button\"][data-element-id^=\"workspace-\"]"
-        );
+        workspaceBar.querySelector(fallbackButtonSelector);
       // Use any available button for style reference
       const styleReferenceButton =
         syncButton || profileButton || settingsButton || fallbackReferenceButton;
