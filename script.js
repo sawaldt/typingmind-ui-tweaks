@@ -1132,7 +1132,7 @@
       const fallbackReferenceButton =
         workspaceBar.querySelector('[data-element-id^="workspace-tab-"]') ||
         workspaceBar.querySelector(
-          "button[data-element-id^='workspace-'], [role='button'][data-element-id^='workspace-']"
+          "button[data-element-id^=\"workspace-\"], [role=\"button\"][data-element-id^=\"workspace-\"]"
         );
       // Use any available button for style reference
       const styleReferenceButton =
@@ -1279,11 +1279,6 @@
       }
     }
     const settingsContainerSelector = [
-      '[data-element-id="settings-page"]',
-      '[data-element-id="settings-view"]',
-      '[data-element-id="settings-content"]',
-      '[data-element-id="settings-panel"]',
-      '[data-element-id="settings-modal"]',
       '[data-element-id="preferences-page"]',
       '[data-element-id^="settings-"]',
     ].join(", ");
