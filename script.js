@@ -1164,7 +1164,7 @@
         debugInfoLogged = true;
       }
       
-      if (!tweaksButton && workspaceBar) {
+      if (!tweaksButton) {
         tweaksButton = document.createElement("button");
         tweaksButton.id = "workspace-tab-tweaks";
         tweaksButton.title = "Open UI Tweaks";
