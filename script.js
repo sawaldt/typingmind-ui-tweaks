@@ -1128,9 +1128,9 @@
     applyCustomTitle();
     applyCustomFont();
     applyCustomFavicon();
-      const workspaceBar = getWorkspaceBar();
-      if (workspaceBar) {
-        let tweaksButton = document.getElementById("workspace-tab-tweaks");
+    const workspaceBar = getWorkspaceBar();
+    if (workspaceBar) {
+      let tweaksButton = document.getElementById("workspace-tab-tweaks");
       const settingsButton = workspaceBar.querySelector(
         '[data-element-id="workspace-tab-settings"]'
       );
