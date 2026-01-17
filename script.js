@@ -1131,7 +1131,9 @@
       );
       const fallbackReferenceButton =
         workspaceBar.querySelector('[data-element-id^="workspace-tab-"]') ||
-        workspaceBar.querySelector("button, [role='button']");
+        workspaceBar.querySelector(
+          "button[data-element-id], [role='button'][data-element-id]"
+        );
       // Use any available button for style reference
       const styleReferenceButton =
         syncButton || profileButton || settingsButton || fallbackReferenceButton;
@@ -1152,7 +1154,7 @@
         debugInfoLogged = true;
       }
       
-      if (!tweaksButton) {
+      if (!tweaksButton && styleReferenceButton) {
         tweaksButton = document.createElement("button");
         tweaksButton.id = "workspace-tab-tweaks";
         tweaksButton.title = "Open UI Tweaks";
