@@ -1280,14 +1280,9 @@
         }
       }
     }
-    const settingsContainer =
-      document.querySelector('[data-element-id="settings-page"]') ||
-      document.querySelector('[data-element-id="settings-view"]') ||
-      document.querySelector('[data-element-id="settings-content"]') ||
-      document.querySelector('[data-element-id="settings-panel"]') ||
-      document.querySelector('[data-element-id="settings-modal"]') ||
-      document.querySelector('[data-element-id="preferences-page"]') ||
-      document.querySelector('[data-element-id^="settings-"]');
+    const settingsContainer = document.querySelector(
+      '[data-element-id="settings-page"], [data-element-id="settings-view"], [data-element-id="settings-content"], [data-element-id="settings-panel"], [data-element-id="settings-modal"], [data-element-id="preferences-page"], [data-element-id^="settings-"]'
+    );
     if (settingsContainer) {
       let settingsTweaksWrapper = document.getElementById(
         "tweak-settings-button-wrapper"
@@ -1328,10 +1323,12 @@
         settingsTweaksWrapper.appendChild(settingsTweaksButton);
       }
       if (settingsTweaksWrapper.parentElement !== settingsContainer) {
-        settingsContainer.insertBefore(
-          settingsTweaksWrapper,
-          settingsContainer.firstChild
-        );
+        const firstChild = settingsContainer.firstChild;
+        if (firstChild) {
+          settingsContainer.insertBefore(settingsTweaksWrapper, firstChild);
+        } else {
+          settingsContainer.appendChild(settingsTweaksWrapper);
+        }
       }
       const showModalButtonSetting = getSetting(
         settingsKeys.showModalButton,
