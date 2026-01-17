@@ -87,7 +87,7 @@
     }
 
     const workspaceBar = document.querySelector(
-      'div[data-element-id="workspace-bar"]'
+      '[data-element-id="workspace-bar"]'
     );
     let kbButtonFound = false;
     if (workspaceBar) {
@@ -224,10 +224,10 @@
     if (workspaceBar) {
       let tweaksButton = document.getElementById("workspace-tab-tweaks");
       const settingsButton = workspaceBar.querySelector(
-        'button[data-element-id="workspace-tab-settings"]'
+        '[data-element-id="workspace-tab-settings"]'
       );
       const syncButton = workspaceBar.querySelector(
-        'button[data-element-id="workspace-tab-cloudsync"]'
+        '[data-element-id="workspace-tab-cloudsync"]'
       );
       // profileButton is declared at function scope above
       const styleReferenceButton = syncButton || profileButton || settingsButton;
@@ -250,6 +250,15 @@
         if (tweaksButton.style.display !== newDisplay) {
           tweaksButton.style.display = newDisplay;
         }
+      }
+    }
+    const settingsTweaksWrapper = document.getElementById(
+      "tweak-settings-button-wrapper"
+    );
+    if (settingsTweaksWrapper) {
+      const newDisplay = showModalButtonSetting ? "flex" : "none";
+      if (settingsTweaksWrapper.style.display !== newDisplay) {
+        settingsTweaksWrapper.style.display = newDisplay;
       }
     }
     let sidebarStyle = document.getElementById(
@@ -279,6 +288,7 @@
   let modalOverlay = null;
   let modalElement = null;
   let feedbackElement = null;
+  let faviconObserver = null;
   function createSettingsModal() {
     if (document.getElementById("tweak-modal-overlay")) return;
     const styles = `
@@ -1100,29 +1110,34 @@
     applyCustomFavicon();
   }
   createSettingsModal();
-  const observer = new MutationObserver((mutationsList) => {
+  const handleMutations = () => {
     applyStylesBasedOnSettings();
     applyCustomTitle();
     applyCustomFont();
     applyCustomFavicon();
     const workspaceBar = document.querySelector(
-      'div[data-element-id="workspace-bar"]'
+      '[data-element-id="workspace-bar"]'
     );
     if (workspaceBar) {
       let tweaksButton = document.getElementById("workspace-tab-tweaks");
       const settingsButton = workspaceBar.querySelector(
-        'button[data-element-id="workspace-tab-settings"]'
+        '[data-element-id="workspace-tab-settings"]'
       );
       const syncButton = workspaceBar.querySelector(
-        'button[data-element-id="workspace-tab-cloudsync"]'
+        '[data-element-id="workspace-tab-cloudsync"]'
       );
       const profileButton = document.querySelector(
-        'button[data-element-id="workspace-profile-button"]'
+        '[data-element-id="workspace-profile-button"]'
       );
+      const fallbackReferenceButton =
+        workspaceBar.querySelector('[data-element-id^="workspace-tab-"]') ||
+        workspaceBar.querySelector("button, [role='button']");
       // Use any available button for style reference
-      const styleReferenceButton = syncButton || profileButton || settingsButton;
+      const styleReferenceButton =
+        syncButton || profileButton || settingsButton || fallbackReferenceButton;
       // Find the best insertion reference point (prefer settingsButton, but fall back to any button in the workspace bar)
-      const insertionReferenceButton = settingsButton || syncButton || profileButton || workspaceBar.querySelector('button');
+      const insertionReferenceButton =
+        settingsButton || syncButton || profileButton || fallbackReferenceButton;
       
       // Debug logging (only log once)
       if (!tweaksButton && !debugInfoLogged) {
@@ -1137,12 +1152,14 @@
         debugInfoLogged = true;
       }
       
-      if (!tweaksButton && styleReferenceButton) {
+      if (!tweaksButton) {
         tweaksButton = document.createElement("button");
         tweaksButton.id = "workspace-tab-tweaks";
         tweaksButton.title = "Open UI Tweaks";
         tweaksButton.dataset.elementId = "workspace-tab-tweaks";
-        tweaksButton.className = styleReferenceButton.className;
+        if (styleReferenceButton) {
+          tweaksButton.className = styleReferenceButton.className;
+        }
         // Add fallback styles to ensure button visibility
         tweaksButton.style.display = "inline-flex";
         tweaksButton.style.alignItems = "center";
@@ -1153,8 +1170,9 @@
         tweaksButton.style.border = "none";
         
         const outerSpan = document.createElement("span");
-        const styleReferenceOuterSpan =
-          styleReferenceButton.querySelector(":scope > span");
+        const styleReferenceOuterSpan = styleReferenceButton
+          ? styleReferenceButton.querySelector(":scope > span")
+          : null;
         if (styleReferenceOuterSpan) {
           outerSpan.className = styleReferenceOuterSpan.className;
         }
@@ -1166,9 +1184,9 @@
         outerSpan.style.gap = "0.25rem";
 
         const iconDiv = document.createElement("div");
-        const styleReferenceIconDiv = styleReferenceButton.querySelector(
-          ":scope > span > div"
-        );
+        const styleReferenceIconDiv = styleReferenceButton
+          ? styleReferenceButton.querySelector(":scope > span > div")
+          : null;
         if (styleReferenceIconDiv) {
           iconDiv.className = styleReferenceIconDiv.className;
         }
@@ -1260,14 +1278,75 @@
         }
       }
     }
-  });
+    const settingsContainer =
+      document.querySelector('[data-element-id="settings-page"]') ||
+      document.querySelector('[data-element-id="settings-view"]') ||
+      document.querySelector('[data-element-id="settings-content"]') ||
+      document.querySelector('[data-element-id="settings-panel"]') ||
+      document.querySelector('[data-element-id="settings-modal"]') ||
+      document.querySelector('[data-element-id="preferences-page"]') ||
+      document.querySelector('[data-element-id^="settings-"]');
+    if (settingsContainer) {
+      let settingsTweaksWrapper = document.getElementById(
+        "tweak-settings-button-wrapper"
+      );
+      let settingsTweaksButton = document.getElementById("settings-tweaks-button");
+      if (!settingsTweaksWrapper) {
+        settingsTweaksWrapper = document.createElement("div");
+        settingsTweaksWrapper.id = "tweak-settings-button-wrapper";
+        settingsTweaksWrapper.style.display = "flex";
+        settingsTweaksWrapper.style.justifyContent = "flex-start";
+        settingsTweaksWrapper.style.margin = "0 0 12px 0";
+      }
+      if (!settingsTweaksButton) {
+        settingsTweaksButton = document.createElement("button");
+        settingsTweaksButton.id = "settings-tweaks-button";
+        settingsTweaksButton.type = "button";
+        settingsTweaksButton.title = "Open UI Tweaks";
+        settingsTweaksButton.textContent = "Open UI Tweaks";
+        const referenceButton = settingsContainer.querySelector("button");
+        if (referenceButton) {
+          settingsTweaksButton.className = referenceButton.className;
+        } else {
+          settingsTweaksButton.style.display = "inline-flex";
+          settingsTweaksButton.style.alignItems = "center";
+          settingsTweaksButton.style.justifyContent = "center";
+          settingsTweaksButton.style.padding = "8px 12px";
+          settingsTweaksButton.style.borderRadius = "6px";
+          settingsTweaksButton.style.border = "1px solid #4b5563";
+          settingsTweaksButton.style.background = "#1f2937";
+          settingsTweaksButton.style.color = "#f9fafb";
+          settingsTweaksButton.style.cursor = "pointer";
+        }
+        settingsTweaksButton.addEventListener("click", (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          toggleModal(true);
+        });
+        settingsTweaksWrapper.appendChild(settingsTweaksButton);
+      }
+      if (settingsTweaksWrapper.parentElement !== settingsContainer) {
+        settingsContainer.insertBefore(
+          settingsTweaksWrapper,
+          settingsContainer.firstChild
+        );
+      }
+      const showModalButtonSetting = getSetting(
+        settingsKeys.showModalButton,
+        true
+      );
+      settingsTweaksWrapper.style.display = showModalButtonSetting
+        ? "flex"
+        : "none";
+    }
+  };
+  const observer = new MutationObserver(handleMutations);
 
   observer.observe(document.body, {
     childList: true,
     subtree: true,
   });
-
-  let faviconObserver = null;
+  handleMutations();
 
   if (
     document.readyState === "complete" ||
