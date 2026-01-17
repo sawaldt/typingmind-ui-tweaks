@@ -1132,7 +1132,6 @@
       const fallbackButtonSelector =
         'button[data-element-id^="workspace-"], [role="button"][data-element-id^="workspace-"]';
       const fallbackReferenceButton =
-        workspaceBar.querySelector('[data-element-id^="workspace-tab-"]') ||
         workspaceBar.querySelector(fallbackButtonSelector);
       // Use any available button for style reference
       const styleReferenceButton =
@@ -1170,9 +1169,8 @@
         tweaksButton.style.border = "none";
         
         const outerSpan = document.createElement("span");
-        const styleReferenceOuterSpan = styleReferenceButton
-          ? styleReferenceButton.querySelector(":scope > span")
-          : null;
+        const styleReferenceOuterSpan =
+          styleReferenceButton?.querySelector(":scope > span");
         if (styleReferenceOuterSpan) {
           outerSpan.className = styleReferenceOuterSpan.className;
         }
@@ -1184,9 +1182,8 @@
         outerSpan.style.gap = "0.25rem";
 
         const iconDiv = document.createElement("div");
-        const styleReferenceIconDiv = styleReferenceButton
-          ? styleReferenceButton.querySelector(":scope > span > div")
-          : null;
+        const styleReferenceIconDiv =
+          styleReferenceButton?.querySelector(":scope > span > div");
         if (styleReferenceIconDiv) {
           iconDiv.className = styleReferenceIconDiv.className;
         }
@@ -1279,8 +1276,12 @@
       }
     }
     const settingsContainerSelector = [
+      '[data-element-id="settings-page"]',
+      '[data-element-id="settings-view"]',
+      '[data-element-id="settings-content"]',
+      '[data-element-id="settings-panel"]',
+      '[data-element-id="settings-modal"]',
       '[data-element-id="preferences-page"]',
-      '[data-element-id^="settings-"]',
     ].join(", ");
     const settingsContainer = document.querySelector(settingsContainerSelector);
     if (settingsContainer) {
