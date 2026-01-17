@@ -40,6 +40,21 @@
     return cleaned;
   };
 
+  function getWorkspaceBar() {
+    const selectors = [
+      '[data-element-id="workspace-bar"]',
+      '[data-element-id="workspace-sidebar"]',
+      '[data-element-id="sidebar"]',
+      "nav",
+      "aside",
+    ];
+    for (const selector of selectors) {
+      const element = document.querySelector(selector);
+      if (element) return element;
+    }
+    return null;
+  }
+
   function getSetting(key, defaultValue = false) {
     const value = localStorage.getItem(key);
     if (value === null) return defaultValue;
@@ -86,9 +101,7 @@
     } else {
     }
 
-    const workspaceBar = document.querySelector(
-      '[data-element-id="workspace-bar"]'
-    );
+    const workspaceBar = getWorkspaceBar();
     let kbButtonFound = false;
     if (workspaceBar) {
       const buttons = workspaceBar.querySelectorAll("button");
@@ -1115,11 +1128,9 @@
     applyCustomTitle();
     applyCustomFont();
     applyCustomFavicon();
-    const workspaceBar = document.querySelector(
-      '[data-element-id="workspace-bar"]'
-    );
-    if (workspaceBar) {
-      let tweaksButton = document.getElementById("workspace-tab-tweaks");
+      const workspaceBar = getWorkspaceBar();
+      if (workspaceBar) {
+        let tweaksButton = document.getElementById("workspace-tab-tweaks");
       const settingsButton = workspaceBar.querySelector(
         '[data-element-id="workspace-tab-settings"]'
       );
@@ -1153,12 +1164,14 @@
         debugInfoLogged = true;
       }
       
-      if (!tweaksButton && styleReferenceButton) {
+      if (!tweaksButton && workspaceBar) {
         tweaksButton = document.createElement("button");
         tweaksButton.id = "workspace-tab-tweaks";
         tweaksButton.title = "Open UI Tweaks";
         tweaksButton.dataset.elementId = "workspace-tab-tweaks";
-        tweaksButton.className = styleReferenceButton.className;
+        if (styleReferenceButton) {
+          tweaksButton.className = styleReferenceButton.className;
+        }
         // Add fallback styles to ensure button visibility
         tweaksButton.style.display = "inline-flex";
         tweaksButton.style.alignItems = "center";
