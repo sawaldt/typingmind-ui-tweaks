@@ -21,6 +21,32 @@
     customFaviconData: "tweak_customFaviconData",
   };
 
+  const DOMSelectors = {
+    workspaceBarFallback: [
+      '[data-element-id="workspace-bar"]',
+      '[data-element-id="workspace-sidebar"]',
+      '[data-element-id="sidebar"]',
+      "nav",
+      "aside",
+    ],
+    teamsButton: 'button[data-element-id="workspace-tab-teams"]',
+    logoImage: 'img[alt="TypingMind"][src="/logo.png"]',
+    profileButton: 'button[data-element-id="workspace-profile-button"]',
+    pinnedCharsContainer: 'div[data-element-id="pinned-characters-container"]',
+    kbToggleButton: 'button[data-element-id="toggle-kb-button"]',
+    newChatButton: 'button[data-element-id="new-chat-button-in-side-bar"]',
+    workspaceSettingsButton: '[data-element-id="workspace-tab-settings"]',
+    workspaceSyncButton: '[data-element-id="workspace-tab-cloudsync"]',
+    settingsContainerOrPage: [
+      '[data-element-id="settings-page"]',
+      '[data-element-id="settings-view"]',
+      '[data-element-id="settings-content"]',
+      '[data-element-id="settings-panel"]',
+      '[data-element-id="settings-modal"]',
+      '[data-element-id="preferences-page"]',
+    ].join(", "),
+  };
+
   const consolePrefix = "TypingMind Tweaks:";
   const defaultNewChatButtonColor = "#2563eb";
   const defaultWorkspaceIconColorVisual = "#9ca3af";
@@ -41,13 +67,7 @@
   };
 
   function getWorkspaceBar() {
-    const selectors = [
-      '[data-element-id="workspace-bar"]',
-      '[data-element-id="workspace-sidebar"]',
-      '[data-element-id="sidebar"]',
-      "nav",
-      "aside",
-    ];
+    const selectors = DOMSelectors.workspaceBarFallback;
     for (const selector of selectors) {
       const element = document.querySelector(selector);
       if (element) return element;
@@ -90,9 +110,7 @@
       settingsKeys.showModalButton,
       true
     );
-    const teamsButton = document.querySelector(
-      'button[data-element-id="workspace-tab-teams"]'
-    );
+    const teamsButton = document.querySelector(DOMSelectors.teamsButton);
     if (teamsButton) {
       const newDisplay = hideTeams ? "none" : "";
       if (teamsButton.style.display !== newDisplay) {
@@ -125,9 +143,7 @@
         workspaceBar.style.removeProperty("--sidebar-menu-color");
       }
     }
-    const logoImage = document.querySelector(
-      'img[alt="TypingMind"][src="/logo.png"]'
-    );
+    const logoImage = document.querySelector(DOMSelectors.logoImage);
     let logoContainerDiv = null;
     if (
       logoImage &&
@@ -144,9 +160,7 @@
       }
     } else {
     }
-    const profileButton = document.querySelector(
-      'button[data-element-id="workspace-profile-button"]'
-    );
+    const profileButton = document.querySelector(DOMSelectors.profileButton);
     if (profileButton) {
       const newDisplay = hideProfile ? "none" : "";
       if (profileButton.style.display !== newDisplay) {
@@ -168,9 +182,7 @@
         }
       }
     });
-    const pinnedCharsContainer = document.querySelector(
-      'div[data-element-id="pinned-characters-container"]'
-    );
+    const pinnedCharsContainer = document.querySelector(DOMSelectors.pinnedCharsContainer);
     if (pinnedCharsContainer) {
       const newDisplay = hidePinnedChars ? "none" : "";
       if (pinnedCharsContainer.style.display !== newDisplay) {
@@ -178,18 +190,14 @@
       }
     } else {
     }
-    const kbToggleButton = document.querySelector(
-      'button[data-element-id="toggle-kb-button"]'
-    );
+    const kbToggleButton = document.querySelector(DOMSelectors.kbToggleButton);
     if (kbToggleButton) {
       const newDisplay = hideKBToggle ? "none" : "";
       if (kbToggleButton.style.display !== newDisplay) {
         kbToggleButton.style.display = newDisplay;
       }
     }
-    const newChatButton = document.querySelector(
-      'button[data-element-id="new-chat-button-in-side-bar"]'
-    );
+    const newChatButton = document.querySelector(DOMSelectors.newChatButton);
     if (newChatButton) {
       if (newChatColor) {
         if (newChatButton.style.backgroundColor !== newChatColor) {
@@ -236,12 +244,8 @@
     }
     if (workspaceBar) {
       let tweaksButton = document.getElementById("workspace-tab-tweaks");
-      const settingsButton = workspaceBar.querySelector(
-        '[data-element-id="workspace-tab-settings"]'
-      );
-      const syncButton = workspaceBar.querySelector(
-        '[data-element-id="workspace-tab-cloudsync"]'
-      );
+      const settingsButton = workspaceBar.querySelector(DOMSelectors.workspaceSettingsButton);
+      const syncButton = workspaceBar.querySelector(DOMSelectors.workspaceSyncButton);
       // profileButton is declared at function scope above
       const styleReferenceButton = syncButton || profileButton || settingsButton;
 
@@ -913,10 +917,95 @@
     scrollableContent.appendChild(faviconSection);
     const footer = document.createElement("div");
     footer.className = "tweak-modal-footer";
+    // Override the default flex-end to push the Close button to the right and new buttons to left
+    footer.style.justifyContent = "space-between";
+
+    const leftButtons = document.createElement("div");
+    leftButtons.style.display = "flex";
+    leftButtons.style.gap = "10px";
+
+    const exportButton = document.createElement("button");
+    exportButton.textContent = "Export";
+    exportButton.className = "tweak-reset-button";
+    exportButton.type = "button";
+    exportButton.style.backgroundColor = "#198754";
+    exportButton.style.borderColor = "#198754";
+    exportButton.addEventListener("click", () => {
+      const exportData = {};
+      Object.values(settingsKeys).forEach((key) => {
+        const val = localStorage.getItem(key);
+        if (val !== null) exportData[key] = val;
+      });
+      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "typingmind-ui-tweaks-backup.json";
+      a.click();
+      URL.revokeObjectURL(url);
+      if (feedbackElement) feedbackElement.textContent = "Settings exported.";
+    });
+
+    const fileInput = document.createElement("input");
+    fileInput.type = "file";
+    fileInput.accept = ".json";
+    fileInput.style.display = "none";
+    fileInput.addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        try {
+          const importData = JSON.parse(event.target.result);
+          // Only process keys we actually track
+          Object.entries(importData).forEach(([key, value]) => {
+            if (Object.values(settingsKeys).includes(key)) {
+              if (value === null) {
+                localStorage.removeItem(key);
+              } else {
+                localStorage.setItem(key, value);
+              }
+            }
+          });
+          // Refresh the modal values and apply changes instantly
+          loadSettingsIntoModal();
+          applyStylesBasedOnSettings();
+          applyCustomTitle();
+
+          // Using setTimeout because applyCustomFavicon triggers an observer that might need elements ready
+          if (typeof applyCustomFavicon === "function") {
+            setTimeout(() => applyCustomFavicon(), 0);
+          }
+
+          if (feedbackElement) feedbackElement.textContent = "Settings imported successfully.";
+        } catch (err) {
+          if (feedbackElement) feedbackElement.textContent = "Error importing settings.";
+          console.error(`${consolePrefix} Error parsing imported settings`, err);
+        }
+        // Reset the input so the same file could be imported again if edited
+        fileInput.value = "";
+      };
+      reader.readAsText(file);
+    });
+
+    const importButton = document.createElement("button");
+    importButton.textContent = "Import";
+    importButton.className = "tweak-reset-button";
+    importButton.type = "button";
+    importButton.style.backgroundColor = "#0dcaf0";
+    importButton.style.borderColor = "#0dcaf0";
+    importButton.addEventListener("click", () => fileInput.click());
+
+    leftButtons.appendChild(exportButton);
+    leftButtons.appendChild(importButton);
+    leftButtons.appendChild(fileInput);
+
     const closeButtonBottom = document.createElement("button");
     closeButtonBottom.id = "tweak-modal-bottom-close";
     closeButtonBottom.textContent = "Close";
     closeButtonBottom.addEventListener("click", () => toggleModal(false));
+
+    footer.appendChild(leftButtons);
     footer.appendChild(closeButtonBottom);
     modalElement.appendChild(header);
     modalElement.appendChild(feedbackElement);
@@ -1131,15 +1220,9 @@
     const workspaceBar = getWorkspaceBar();
     if (workspaceBar) {
       let tweaksButton = document.getElementById("workspace-tab-tweaks");
-      const settingsButton = workspaceBar.querySelector(
-        '[data-element-id="workspace-tab-settings"]'
-      );
-      const syncButton = workspaceBar.querySelector(
-        '[data-element-id="workspace-tab-cloudsync"]'
-      );
-      const profileButton = document.querySelector(
-        '[data-element-id="workspace-profile-button"]'
-      );
+      const settingsButton = workspaceBar.querySelector(DOMSelectors.workspaceSettingsButton);
+      const syncButton = workspaceBar.querySelector(DOMSelectors.workspaceSyncButton);
+      const profileButton = document.querySelector(DOMSelectors.profileButton);
       const fallbackButtonSelector =
         'button[data-element-id^="workspace-"], [role="button"][data-element-id^="workspace-"]';
       const fallbackReferenceButton =
@@ -1150,7 +1233,7 @@
       // Find the best insertion reference point (prefer settingsButton, but fall back to any button in the workspace bar)
       const insertionReferenceButton =
         settingsButton || syncButton || profileButton || fallbackReferenceButton;
-      
+
       // Debug logging (only log once)
       if (!tweaksButton && !debugInfoLogged) {
         console.log(`${consolePrefix} Debug info:`, {
@@ -1163,7 +1246,7 @@
         });
         debugInfoLogged = true;
       }
-      
+
       if (!tweaksButton) {
         tweaksButton = document.createElement("button");
         tweaksButton.id = "workspace-tab-tweaks";
@@ -1180,7 +1263,7 @@
         tweaksButton.style.cursor = "pointer";
         tweaksButton.style.background = "transparent";
         tweaksButton.style.border = "none";
-        
+
         const outerSpan = document.createElement("span");
         const styleReferenceOuterSpan =
           styleReferenceButton?.querySelector(":scope > span");
@@ -1263,7 +1346,7 @@
           e.stopPropagation();
           toggleModal(true);
         });
-        
+
         // Insert the button into the workspace bar
         let buttonInserted = false;
         if (insertionReferenceButton && insertionReferenceButton.parentNode) {
@@ -1274,7 +1357,7 @@
           workspaceBar.appendChild(tweaksButton);
           buttonInserted = true;
         }
-        
+
         if (buttonInserted) {
           const showModalButtonSetting = getSetting(
             settingsKeys.showModalButton,
@@ -1288,14 +1371,7 @@
         }
       }
     }
-    const settingsContainerSelector = [
-      '[data-element-id="settings-page"]',
-      '[data-element-id="settings-view"]',
-      '[data-element-id="settings-content"]',
-      '[data-element-id="settings-panel"]',
-      '[data-element-id="settings-modal"]',
-      '[data-element-id="preferences-page"]',
-    ].join(", ");
+    const settingsContainerSelector = DOMSelectors.settingsContainerOrPage;
     const settingsContainer = document.querySelector(settingsContainerSelector);
     if (settingsContainer) {
       let settingsTweaksWrapper = document.getElementById(
