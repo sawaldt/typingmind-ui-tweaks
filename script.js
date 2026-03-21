@@ -940,7 +940,10 @@
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = "typingmind-ui-tweaks-backup.json";
+      const now = new Date();
+      // Replace colons (invalid in some filesystems) and strip milliseconds/Z
+      const timestamp = now.toISOString().replace(/:/g, "-").replace(/\..+/, "");
+      a.download = `typingmind-ui-tweaks-backup-${timestamp}.json`;
       a.click();
       URL.revokeObjectURL(url);
       if (feedbackElement) feedbackElement.textContent = "Settings exported.";
