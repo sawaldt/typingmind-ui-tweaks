@@ -116,7 +116,6 @@
       if (teamsButton.style.display !== newDisplay) {
         teamsButton.style.display = newDisplay;
       }
-    } else {
     }
 
     const workspaceBar = getWorkspaceBar();
@@ -158,7 +157,6 @@
       if (logoContainerDiv.style.display !== newDisplay) {
         logoContainerDiv.style.display = newDisplay;
       }
-    } else {
     }
     const profileButton = document.querySelector(DOMSelectors.profileButton);
     if (profileButton) {
@@ -166,7 +164,6 @@
       if (profileButton.style.display !== newDisplay) {
         profileButton.style.display = newDisplay;
       }
-    } else {
     }
     const chatProfileSpans = document.querySelectorAll("span");
     let chatProfileButtonFound = false;
@@ -188,7 +185,6 @@
       if (pinnedCharsContainer.style.display !== newDisplay) {
         pinnedCharsContainer.style.display = newDisplay;
       }
-    } else {
     }
     const kbToggleButton = document.querySelector(DOMSelectors.kbToggleButton);
     if (kbToggleButton) {
@@ -208,7 +204,6 @@
           newChatButton.style.backgroundColor = "";
         }
       }
-    } else {
     }
     if (workspaceBar) {
       const icons = workspaceBar.querySelectorAll("svg");
@@ -223,7 +218,6 @@
           }
         }
       });
-    } else {
     }
     if (workspaceBar) {
       const textSpans = workspaceBar.querySelectorAll("span");
@@ -240,7 +234,6 @@
           }
         }
       });
-    } else {
     }
     if (workspaceBar) {
       let tweaksButton = document.getElementById("workspace-tab-tweaks");
@@ -306,6 +299,64 @@
   let modalElement = null;
   let feedbackElement = null;
   let faviconObserver = null;
+
+  function createColorPicker({ key, label, defaultColor }) {
+    const section = document.createElement("div");
+    section.className = "tweak-color-item";
+    const labelEl = document.createElement("label");
+    labelEl.htmlFor = key + "_input";
+    labelEl.textContent = label;
+    const wrapper = document.createElement("div");
+    wrapper.className = "tweak-color-input-wrapper";
+    const input = document.createElement("input");
+    input.type = "color";
+    input.id = key + "_input";
+    input.addEventListener("input", (event) => {
+      saveSetting(key, event.target.value);
+    });
+    const resetBtn = document.createElement("button");
+    resetBtn.textContent = "Reset";
+    resetBtn.className = "tweak-reset-button";
+    resetBtn.type = "button";
+    resetBtn.addEventListener("click", () => {
+      saveSetting(key, null);
+      input.value = defaultColor;
+    });
+    wrapper.appendChild(input);
+    wrapper.appendChild(resetBtn);
+    section.appendChild(labelEl);
+    section.appendChild(wrapper);
+    return section;
+  }
+
+  function createTextInput({ key, label, placeholder, emptyValue = null }) {
+    const section = document.createElement("div");
+    section.className = "tweak-text-item";
+    const wrapper = document.createElement("div");
+    wrapper.className = "tweak-text-input-wrapper";
+    const input = document.createElement("input");
+    input.type = "text";
+    input.id = key + "_input";
+    input.placeholder = placeholder || label;
+    input.addEventListener("input", (event) => {
+      saveSetting(key, event.target.value || emptyValue);
+      if (feedbackElement) feedbackElement.textContent = "Settings saved.";
+    });
+    const clearBtn = document.createElement("button");
+    clearBtn.textContent = "Clear";
+    clearBtn.className = "tweak-reset-button";
+    clearBtn.type = "button";
+    clearBtn.addEventListener("click", () => {
+      saveSetting(key, null);
+      input.value = "";
+      if (feedbackElement) feedbackElement.textContent = "Settings saved.";
+    });
+    wrapper.appendChild(input);
+    wrapper.appendChild(clearBtn);
+    section.appendChild(wrapper);
+    return section;
+  }
+
   function createSettingsModal() {
     if (document.getElementById("tweak-modal-overlay")) return;
     const styles = `
@@ -599,143 +650,30 @@
       checkboxContainer.appendChild(itemDiv);
     });
     settingsSection.appendChild(checkboxContainer);
-    const colorPickerSection = document.createElement("div");
-    colorPickerSection.className = "tweak-color-item";
-    const colorLabel = document.createElement("label");
-    colorLabel.htmlFor = "tweak_newChatButtonColor_input";
-    colorLabel.textContent = "New Chat Button Color:";
-    const colorInputWrapper = document.createElement("div");
-    colorInputWrapper.className = "tweak-color-input-wrapper";
-    const colorInput = document.createElement("input");
-    colorInput.type = "color";
-    colorInput.id = "tweak_newChatButtonColor_input";
-    colorInput.addEventListener("input", (event) => {
-      saveSetting(settingsKeys.newChatButtonColor, event.target.value);
-    });
-    const resetButton = document.createElement("button");
-    resetButton.textContent = "Reset";
-    resetButton.className = "tweak-reset-button";
-    resetButton.type = "button";
-    resetButton.addEventListener("click", () => {
-      saveSetting(settingsKeys.newChatButtonColor, null);
-      colorInput.value = defaultNewChatButtonColor;
-    });
-    colorInputWrapper.appendChild(colorInput);
-    colorInputWrapper.appendChild(resetButton);
-    colorPickerSection.appendChild(colorLabel);
-    colorPickerSection.appendChild(colorInputWrapper);
-    const wsIconColorPickerSection = document.createElement("div");
-    wsIconColorPickerSection.className = "tweak-color-item";
-    const wsIconColorLabel = document.createElement("label");
-    wsIconColorLabel.htmlFor = "tweak_workspaceIconColor_input";
-    wsIconColorLabel.textContent = "Menu Icon Color:";
-    const wsIconColorInputWrapper = document.createElement("div");
-    wsIconColorInputWrapper.className = "tweak-color-input-wrapper";
-    const wsIconColorInput = document.createElement("input");
-    wsIconColorInput.type = "color";
-    wsIconColorInput.id = "tweak_workspaceIconColor_input";
-    wsIconColorInput.addEventListener("input", (event) => {
-      saveSetting(settingsKeys.workspaceIconColor, event.target.value);
-    });
-    const wsIconResetButton = document.createElement("button");
-    wsIconResetButton.textContent = "Reset";
-    wsIconResetButton.className = "tweak-reset-button";
-    wsIconResetButton.type = "button";
-    wsIconResetButton.addEventListener("click", () => {
-      saveSetting(settingsKeys.workspaceIconColor, null);
-      wsIconColorInput.value = defaultWorkspaceIconColorVisual;
-    });
-    wsIconColorInputWrapper.appendChild(wsIconColorInput);
-    wsIconColorInputWrapper.appendChild(wsIconResetButton);
-    wsIconColorPickerSection.appendChild(wsIconColorLabel);
-    wsIconColorPickerSection.appendChild(wsIconColorInputWrapper);
-    const wsFontColorPickerSection = document.createElement("div");
-    wsFontColorPickerSection.className = "tweak-color-item";
-    const wsFontColorLabel = document.createElement("label");
-    wsFontColorLabel.htmlFor = "tweak_workspaceFontColor_input";
-    wsFontColorLabel.textContent = "Menu Font Color:";
-    const wsFontColorInputWrapper = document.createElement("div");
-    wsFontColorInputWrapper.className = "tweak-color-input-wrapper";
-    const wsFontColorInput = document.createElement("input");
-    wsFontColorInput.type = "color";
-    wsFontColorInput.id = "tweak_workspaceFontColor_input";
-    wsFontColorInput.addEventListener("input", (event) => {
-      saveSetting(settingsKeys.workspaceFontColor, event.target.value);
-    });
-    const wsFontResetButton = document.createElement("button");
-    wsFontResetButton.textContent = "Reset";
-    wsFontResetButton.className = "tweak-reset-button";
-    wsFontResetButton.type = "button";
-    wsFontResetButton.addEventListener("click", () => {
-      saveSetting(settingsKeys.workspaceFontColor, null);
-      wsFontColorInput.value = defaultWorkspaceFontColorVisual;
-    });
-    wsFontColorInputWrapper.appendChild(wsFontColorInput);
-    wsFontColorInputWrapper.appendChild(wsFontResetButton);
-    wsFontColorPickerSection.appendChild(wsFontColorLabel);
-    wsFontColorPickerSection.appendChild(wsFontColorInputWrapper);
-    const sidebarMenuColorPickerSection = document.createElement("div");
-    sidebarMenuColorPickerSection.className = "tweak-color-item";
-    const sidebarMenuColorLabel = document.createElement("label");
-    sidebarMenuColorLabel.htmlFor = "tweak_sidebarMenuColor_input";
-    sidebarMenuColorLabel.textContent = "Sidebar Color:";
-    const sidebarMenuColorInputWrapper = document.createElement("div");
-    sidebarMenuColorInputWrapper.className = "tweak-color-input-wrapper";
-    const sidebarMenuColorInput = document.createElement("input");
-    sidebarMenuColorInput.type = "color";
-    sidebarMenuColorInput.id = "tweak_sidebarMenuColor_input";
-    sidebarMenuColorInput.addEventListener("input", (event) => {
-      saveSetting(settingsKeys.sidebarMenuColor, event.target.value);
-    });
-    const sidebarMenuColorResetButton = document.createElement("button");
-    sidebarMenuColorResetButton.textContent = "Reset";
-    sidebarMenuColorResetButton.className = "tweak-reset-button";
-    sidebarMenuColorResetButton.type = "button";
-    sidebarMenuColorResetButton.addEventListener("click", () => {
-      saveSetting(settingsKeys.sidebarMenuColor, null);
-      sidebarMenuColorInput.value = defaultSidebarMenuColor;
-    });
-    sidebarMenuColorInputWrapper.appendChild(sidebarMenuColorInput);
-    sidebarMenuColorInputWrapper.appendChild(sidebarMenuColorResetButton);
-    sidebarMenuColorPickerSection.appendChild(sidebarMenuColorLabel);
-    sidebarMenuColorPickerSection.appendChild(sidebarMenuColorInputWrapper);
+    // --- Color Pickers (data-driven) ---
+    const colorPickers = [
+      { key: settingsKeys.newChatButtonColor, label: "New Chat Button Color:", defaultColor: defaultNewChatButtonColor },
+      { key: settingsKeys.workspaceIconColor, label: "Menu Icon Color:", defaultColor: defaultWorkspaceIconColorVisual },
+      { key: settingsKeys.workspaceFontColor, label: "Menu Font Color:", defaultColor: defaultWorkspaceFontColorVisual },
+      { key: settingsKeys.sidebarMenuColor,   label: "Sidebar Color:",      defaultColor: defaultSidebarMenuColor },
+    ];
+    const colorPickerElements = colorPickers.map((cfg) => createColorPicker(cfg));
+
     const colorDivider = document.createElement("hr");
     colorDivider.style.borderColor = "#4a4a4a";
     colorDivider.style.borderTopWidth = "1px";
     colorDivider.style.marginTop = "20px";
     colorDivider.style.marginBottom = "20px";
-    scrollableContent.appendChild(wsIconColorPickerSection);
-    scrollableContent.appendChild(wsFontColorPickerSection);
-    scrollableContent.appendChild(sidebarMenuColorPickerSection);
-    scrollableContent.appendChild(colorDivider);
-    const customTitleSection = document.createElement("div");
-    customTitleSection.className = "tweak-text-item";
-    const titleLabel = document.createElement("label");
-    titleLabel.htmlFor = "tweak_customPageTitle_input";
-    titleLabel.textContent = "Custom Page Title:";
-    const titleInputWrapper = document.createElement("div");
-    titleInputWrapper.className = "tweak-text-input-wrapper";
-    const titleInput = document.createElement("input");
-    titleInput.type = "text";
-    titleInput.id = "tweak_customPageTitle_input";
-    titleInput.placeholder = "Custom Page Title";
-    titleInput.addEventListener("input", (event) => {
-      saveSetting(settingsKeys.customPageTitle, event.target.value || "");
-      if (feedbackElement) feedbackElement.textContent = "Settings saved.";
-    });
-    const clearTitleButton = document.createElement("button");
-    clearTitleButton.textContent = "Clear";
-    clearTitleButton.className = "tweak-reset-button";
-    clearTitleButton.type = "button";
-    clearTitleButton.addEventListener("click", () => {
-      saveSetting(settingsKeys.customPageTitle, null);
-      titleInput.value = "";
-      if (feedbackElement) feedbackElement.textContent = "Settings saved.";
-    });
-    titleInputWrapper.appendChild(titleInput);
-    titleInputWrapper.appendChild(clearTitleButton);
-    customTitleSection.appendChild(titleInputWrapper);
 
+    // --- Custom Page Title ---
+    const customTitleSection = createTextInput({
+      key: settingsKeys.customPageTitle,
+      label: "Custom Page Title:",
+      placeholder: "Custom Page Title",
+      emptyValue: "",
+    });
+
+    // --- Font Settings ---
     const fontSettingsContainer = document.createElement("div");
     fontSettingsContainer.className = "tweak-settings-section";
     const fontDescription = document.createElement("p");
@@ -745,66 +683,22 @@
     fontDescription.style.fontSize = "0.9em";
     fontDescription.style.color = "#ccc";
     fontSettingsContainer.appendChild(fontDescription);
-    const customFontSection = document.createElement("div");
-    customFontSection.className = "tweak-text-item";
-    const fontLabel = document.createElement("label");
-    fontLabel.htmlFor = "tweak_customFontUrl_input";
-    fontLabel.textContent = "Custom Font URL:";
-    const fontInputWrapper = document.createElement("div");
-    fontInputWrapper.className = "tweak-text-input-wrapper";
-    const fontInput = document.createElement("input");
-    fontInput.type = "text";
-    fontInput.id = "tweak_customFontUrl_input";
-    fontInput.placeholder = "Font URL (e.g., Google Fonts)";
-    fontInput.addEventListener("input", (event) => {
-      saveSetting(settingsKeys.customFontUrl, event.target.value || null);
-      if (feedbackElement) feedbackElement.textContent = "Settings saved.";
+
+    const customFontSection = createTextInput({
+      key: settingsKeys.customFontUrl,
+      label: "Custom Font URL:",
+      placeholder: "Font URL (e.g., Google Fonts)",
     });
-    const clearFontButton = document.createElement("button");
-    clearFontButton.textContent = "Clear";
-    clearFontButton.className = "tweak-reset-button";
-    clearFontButton.type = "button";
-    clearFontButton.addEventListener("click", () => {
-      saveSetting(settingsKeys.customFontUrl, null);
-      fontInput.value = "";
-      if (feedbackElement) feedbackElement.textContent = "Settings saved.";
+
+    const fontFamilySection = createTextInput({
+      key: settingsKeys.customFontFamily,
+      label: "Font Family Name:",
+      placeholder: "Font Family Name (e.g., 'Roboto')",
     });
-    fontInputWrapper.appendChild(fontInput);
-    fontInputWrapper.appendChild(clearFontButton);
-    customFontSection.appendChild(fontInputWrapper);
-    const fontFamilySection = document.createElement("div");
-    fontFamilySection.className = "tweak-text-item";
-    const fontFamilyLabel = document.createElement("label");
-    fontFamilyLabel.htmlFor = "tweak_customFontFamily_input";
-    fontFamilyLabel.textContent = "Font Family Name:";
-    const fontFamilyInputWrapper = document.createElement("div");
-    fontFamilyInputWrapper.className = "tweak-text-input-wrapper";
-    const fontFamilyInput = document.createElement("input");
-    fontFamilyInput.type = "text";
-    fontFamilyInput.id = "tweak_customFontFamily_input";
-    fontFamilyInput.placeholder = "Font Family Name (e.g., 'Roboto')";
-    fontFamilyInput.addEventListener("input", (event) => {
-      saveSetting(settingsKeys.customFontFamily, event.target.value || null);
-      if (feedbackElement) feedbackElement.textContent = "Settings saved.";
-    });
-    const clearFontFamilyButton = document.createElement("button");
-    clearFontFamilyButton.textContent = "Clear";
-    clearFontFamilyButton.className = "tweak-reset-button";
-    clearFontFamilyButton.type = "button";
-    clearFontFamilyButton.addEventListener("click", () => {
-      saveSetting(settingsKeys.customFontFamily, null);
-      fontFamilyInput.value = "";
-      if (feedbackElement) feedbackElement.textContent = "Settings saved.";
-    });
-    fontFamilyInputWrapper.appendChild(fontFamilyInput);
-    fontFamilyInputWrapper.appendChild(clearFontFamilyButton);
-    fontFamilySection.appendChild(fontFamilyInputWrapper);
+
+    // Font size uses a number input with custom validation, kept inline
     const fontSizeSection = document.createElement("div");
     fontSizeSection.className = "tweak-text-item";
-    const fontSizeLabel = document.createElement("label");
-    fontSizeLabel.htmlFor = "tweak_customFontSize_input";
-    fontSizeLabel.textContent = "Font Size (px):";
-    fontSizeLabel.style.marginRight = "10px";
     const fontSizeInputWrapper = document.createElement("div");
     fontSizeInputWrapper.className = "tweak-text-input-wrapper";
     const fontSizeInput = document.createElement("input");
@@ -821,7 +715,6 @@
     fontSizeInput.style.color = "#f0f0f0";
     fontSizeInput.style.fontSize = "0.9em";
     fontSizeInput.style.marginRight = "10px";
-
     fontSizeInput.addEventListener("input", (event) => {
       const valueToSave = event.target.value
         ? parseInt(event.target.value, 10)
@@ -833,7 +726,6 @@
         saveSetting(settingsKeys.customFontSize, valueToSave);
       } else if (valueToSave === null) {
         saveSetting(settingsKeys.customFontSize, null);
-      } else {
       }
       if (feedbackElement) feedbackElement.textContent = "Settings saved.";
     });
@@ -849,14 +741,14 @@
     fontSizeInputWrapper.appendChild(fontSizeInput);
     fontSizeInputWrapper.appendChild(clearFontSizeButton);
     fontSizeSection.appendChild(fontSizeInputWrapper);
+
     fontSettingsContainer.appendChild(customFontSection);
     fontSettingsContainer.appendChild(fontFamilySection);
     fontSettingsContainer.appendChild(fontSizeSection);
+
+    // --- Assemble scrollable content ---
     scrollableContent.appendChild(settingsSection);
-    scrollableContent.appendChild(colorPickerSection);
-    scrollableContent.appendChild(wsIconColorPickerSection);
-    scrollableContent.appendChild(wsFontColorPickerSection);
-    scrollableContent.appendChild(sidebarMenuColorPickerSection);
+    colorPickerElements.forEach((el) => scrollableContent.appendChild(el));
     scrollableContent.appendChild(colorDivider);
     scrollableContent.appendChild(customTitleSection);
     scrollableContent.appendChild(fontSettingsContainer);
@@ -1432,7 +1324,15 @@
         : "none";
     }
   };
-  const observer = new MutationObserver(handleMutations);
+  let mutationFrameId = null;
+  const debouncedHandleMutations = () => {
+    if (mutationFrameId) return;
+    mutationFrameId = requestAnimationFrame(() => {
+      mutationFrameId = null;
+      handleMutations();
+    });
+  };
+  const observer = new MutationObserver(debouncedHandleMutations);
 
   observer.observe(document.body, {
     childList: true,
@@ -1440,11 +1340,7 @@
   });
   handleMutations();
 
-  if (
-    document.readyState === "complete" ||
-    document.readyState === "interactive"
-  ) {
-    initializeTweaks();
+  function startFaviconObserver() {
     setTimeout(() => applyCustomFavicon(), 0);
     faviconObserver = new MutationObserver((mutationsList) => {
       let faviconChanged = false;
@@ -1484,49 +1380,17 @@
       attributes: true,
       attributeFilter: ["href", "rel"],
     });
+  }
+
+  if (
+    document.readyState === "complete" ||
+    document.readyState === "interactive"
+  ) {
+    initializeTweaks();
+    startFaviconObserver();
   } else {
     document.addEventListener("DOMContentLoaded", initializeTweaks);
-    window.addEventListener("DOMContentLoaded", () => {
-      setTimeout(() => applyCustomFavicon(), 0);
-      faviconObserver = new MutationObserver((mutationsList) => {
-        let faviconChanged = false;
-        for (const mutation of mutationsList) {
-          if (mutation.type === "childList" || mutation.type === "attributes") {
-            mutation.addedNodes &&
-              mutation.addedNodes.forEach((node) => {
-                if (
-                  node.nodeType === 1 &&
-                  node.tagName === "LINK" &&
-                  node.rel === "icon"
-                )
-                  faviconChanged = true;
-              });
-            mutation.removedNodes &&
-              mutation.removedNodes.forEach((node) => {
-                if (
-                  node.nodeType === 1 &&
-                  node.tagName === "LINK" &&
-                  node.rel === "icon"
-                )
-                  faviconChanged = true;
-              });
-            if (
-              mutation.target &&
-              mutation.target.tagName === "LINK" &&
-              mutation.target.rel === "icon"
-            )
-              faviconChanged = true;
-          }
-        }
-        if (faviconChanged) setTimeout(() => applyCustomFavicon(), 0);
-      });
-      faviconObserver.observe(document.head, {
-        childList: true,
-        subtree: true,
-        attributes: true,
-        attributeFilter: ["href", "rel"],
-      });
-    });
+    window.addEventListener("DOMContentLoaded", startFaviconObserver);
   }
   console.log(
     `${consolePrefix} Initialized TypingMind UI Tweaks extension. Press Shift+Alt+T for settings. If features aren't working, check browser console for debug info.`
