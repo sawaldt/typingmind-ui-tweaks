@@ -54,6 +54,8 @@
   const defaultSidebarMenuColor = "#18181b";
   let originalPageTitle = null;
   let debugInfoLogged = false; // Track if debug info has been logged
+  // Strips wrapping quotes from stored values — handles legacy entries where
+  // font URLs or family names were saved with surrounding quotes.
   const cleanValue = (value) => {
     if (!value) return null;
     let cleaned = value.trim();
@@ -82,6 +84,8 @@
     try {
       return JSON.parse(value);
     } catch (error) {
+      // Fallback chain handles legacy or hand-edited localStorage entries
+      // that weren't saved via JSON.stringify (e.g. bare strings like "true").
       console.warn(
         `${consolePrefix} Error parsing setting ${key}:`,
         error,
@@ -450,13 +454,12 @@
           color: #e0e0e0;
       }
 
-      /* NEW: Footer styling */
       .tweak-modal-footer {
-        margin-top: 25px; /* Space above the footer */
-        padding-top: 15px; /* Space above the button */
-        border-top: 1px solid #4a4a4a; /* Separator line */
+        margin-top: 25px;
+        padding-top: 15px;
+        border-top: 1px solid #4a4a4a;
         display: flex;
-        justify-content: flex-end; /* Align button to the right */
+        justify-content: space-between;
       }
 
       /* NEW: Close button styling */
@@ -585,8 +588,74 @@
         background-color: #aaa; /* Handle color on hover */
       }
 
-      /* Style adjustments for items within scrollable area if needed */
-      .tweak-settings-section,
+      .tweak-text-item input[type='number'] {
+          flex-grow: 1;
+          flex-shrink: 1;
+          min-width: 50px;
+          flex-basis: auto;
+          padding: 6px 10px;
+          border: 1px solid #777;
+          margin-right: 10px;
+          border-radius: 4px;
+          background-color: #555;
+          color: #f0f0f0;
+          font-size: 0.9em;
+      }
+
+      .tweak-color-divider {
+          border-color: #4a4a4a;
+          border-top-width: 1px;
+          margin-top: 20px;
+          margin-bottom: 20px;
+      }
+
+      .tweak-font-description {
+          margin-bottom: 15px;
+          font-size: 0.9em;
+          color: #ccc;
+      }
+
+      .tweak-favicon-label {
+          color: #e0e0e0;
+          font-size: 1em;
+          margin-right: 10px;
+      }
+
+      .tweak-favicon-input {
+          flex-grow: 1;
+          margin-right: 10px;
+      }
+
+      .tweak-favicon-preview {
+          width: 24px;
+          height: 24px;
+          margin-left: 10px;
+          vertical-align: middle;
+          display: none;
+      }
+
+      .tweak-footer-left {
+          display: flex;
+          gap: 10px;
+      }
+
+      .tweak-export-button {
+          background-color: #198754;
+          border-color: #198754;
+      }
+      .tweak-export-button:hover {
+          background-color: #157347;
+          border-color: #146c43;
+      }
+
+      .tweak-import-button {
+          background-color: #0dcaf0;
+          border-color: #0dcaf0;
+      }
+      .tweak-import-button:hover {
+          background-color: #0bacce;
+          border-color: #0aa2c0;
+      }
     `;
     const styleSheet = document.createElement("style");
     styleSheet.innerText = styles;
@@ -660,10 +729,7 @@
     const colorPickerElements = colorPickers.map((cfg) => createColorPicker(cfg));
 
     const colorDivider = document.createElement("hr");
-    colorDivider.style.borderColor = "#4a4a4a";
-    colorDivider.style.borderTopWidth = "1px";
-    colorDivider.style.marginTop = "20px";
-    colorDivider.style.marginBottom = "20px";
+    colorDivider.className = "tweak-color-divider";
 
     // --- Custom Page Title ---
     const customTitleSection = createTextInput({
@@ -679,9 +745,7 @@
     const fontDescription = document.createElement("p");
     fontDescription.textContent =
       "Import/apply custom font. Font URL must include desired weights (e.g., from Google Fonts selection).";
-    fontDescription.style.marginBottom = "15px";
-    fontDescription.style.fontSize = "0.9em";
-    fontDescription.style.color = "#ccc";
+    fontDescription.className = "tweak-font-description";
     fontSettingsContainer.appendChild(fontDescription);
 
     const customFontSection = createTextInput({
@@ -707,14 +771,6 @@
     fontSizeInput.placeholder = "Font Size (px)";
     fontSizeInput.min = "8";
     fontSizeInput.step = "1";
-    fontSizeInput.style.flexGrow = "1";
-    fontSizeInput.style.padding = "6px 10px";
-    fontSizeInput.style.border = "1px solid #777";
-    fontSizeInput.style.borderRadius = "4px";
-    fontSizeInput.style.backgroundColor = "#555";
-    fontSizeInput.style.color = "#f0f0f0";
-    fontSizeInput.style.fontSize = "0.9em";
-    fontSizeInput.style.marginRight = "10px";
     fontSizeInput.addEventListener("input", (event) => {
       const valueToSave = event.target.value
         ? parseInt(event.target.value, 10)
@@ -756,23 +812,17 @@
     faviconSection.className = "tweak-settings-section";
     const faviconLabel = document.createElement("label");
     faviconLabel.textContent = "Custom Favicon:";
-    faviconLabel.style.color = "#e0e0e0";
-    faviconLabel.style.fontSize = "1em";
-    faviconLabel.style.marginRight = "10px";
+    faviconLabel.className = "tweak-favicon-label";
     const faviconInputWrapper = document.createElement("div");
     faviconInputWrapper.className = "tweak-text-input-wrapper";
     const faviconInput = document.createElement("input");
     faviconInput.type = "file";
     faviconInput.accept = ".ico,.png,.jpg,.jpeg,.svg";
     faviconInput.id = "tweak_customFaviconData_input";
-    faviconInput.style.flexGrow = "1";
-    faviconInput.style.marginRight = "10px";
+    faviconInput.className = "tweak-favicon-input";
     const faviconPreview = document.createElement("img");
-    faviconPreview.style.width = "24px";
-    faviconPreview.style.height = "24px";
-    faviconPreview.style.marginLeft = "10px";
-    faviconPreview.style.verticalAlign = "middle";
-    faviconPreview.style.display = "none";
+    faviconPreview.id = "tweak-favicon-preview";
+    faviconPreview.className = "tweak-favicon-preview";
     faviconInput.addEventListener("change", (event) => {
       const file = event.target.files[0];
       if (!file) return;
@@ -788,6 +838,7 @@
       reader.readAsDataURL(file);
     });
     const clearFaviconButton = document.createElement("button");
+    clearFaviconButton.id = "tweak-favicon-clear";
     clearFaviconButton.textContent = "Clear";
     clearFaviconButton.className = "tweak-reset-button";
     clearFaviconButton.type = "button";
@@ -809,19 +860,14 @@
     scrollableContent.appendChild(faviconSection);
     const footer = document.createElement("div");
     footer.className = "tweak-modal-footer";
-    // Override the default flex-end to push the Close button to the right and new buttons to left
-    footer.style.justifyContent = "space-between";
 
     const leftButtons = document.createElement("div");
-    leftButtons.style.display = "flex";
-    leftButtons.style.gap = "10px";
+    leftButtons.className = "tweak-footer-left";
 
     const exportButton = document.createElement("button");
     exportButton.textContent = "Export";
-    exportButton.className = "tweak-reset-button";
+    exportButton.className = "tweak-reset-button tweak-export-button";
     exportButton.type = "button";
-    exportButton.style.backgroundColor = "#198754";
-    exportButton.style.borderColor = "#198754";
     exportButton.addEventListener("click", () => {
       const exportData = {};
       Object.values(settingsKeys).forEach((key) => {
@@ -885,10 +931,8 @@
 
     const importButton = document.createElement("button");
     importButton.textContent = "Import";
-    importButton.className = "tweak-reset-button";
+    importButton.className = "tweak-reset-button tweak-import-button";
     importButton.type = "button";
-    importButton.style.backgroundColor = "#0dcaf0";
-    importButton.style.borderColor = "#0dcaf0";
     importButton.addEventListener("click", () => fileInput.click());
 
     leftButtons.appendChild(exportButton);
@@ -1011,14 +1055,8 @@
     const faviconInput = document.getElementById(
       "tweak_customFaviconData_input"
     );
-    const faviconPreview =
-      faviconInput &&
-      faviconInput.parentNode &&
-      faviconInput.parentNode.querySelector("img");
-    const clearFaviconButton =
-      faviconInput &&
-      faviconInput.parentNode &&
-      faviconInput.parentNode.querySelector("button.tweak-reset-button");
+    const faviconPreview = document.getElementById("tweak-favicon-preview");
+    const clearFaviconButton = document.getElementById("tweak-favicon-clear");
     if (faviconPreview && clearFaviconButton) {
       const storedFaviconData = getSetting(
         settingsKeys.customFaviconData,
@@ -1050,6 +1088,9 @@
         feedbackElement.textContent = "Settings saved.";
       }
       applyStylesBasedOnSettings();
+      if (key === settingsKeys.customPageTitle) {
+        applyCustomTitle();
+      }
       if (
         key === settingsKeys.customFontUrl ||
         key === settingsKeys.customFontFamily ||
@@ -1437,7 +1478,7 @@
     if (globalRules.length > 0) {
       const rulesString = globalRules.join("\n");
       cssRules.push(`
-html, body, * {
+html, body {
 ${rulesString}
 }
       `);
